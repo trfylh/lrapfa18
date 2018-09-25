@@ -4,8 +4,9 @@
 // Takes in a string of panãra orthography and returns the phonetic form.
 // ex. takes in "nãnsy" and returns "nãnsɯ"
 // TO DO: checking for <j> in onset and <n> in coda
-function ORTHTOPHONETIC(orth) {
+function ORTHTOPHONETIC(INPUT1) {
     var orth, phon, is;
+    orth = INPUT1;
     phon = "";
     skip = 0;
     for (i = 0; i < orth.length; i++) {
@@ -37,13 +38,13 @@ function ORTHTOPHONETIC(orth) {
         // vowels
         // orals
         else if (orth.charAt(i) == "i") {
-            if (i != orth.length - 1) && (orth.charAt(i + 1) == "i") { // i: <ii>
+            if ((i != orth.length - 1) && (orth.charAt(i + 1) == "i")) { // i: <ii>
                 phon += "i:";
                 skip = 1;
             }
         }
         else if (orth.charAt(i) == "ê") {
-            if (i != orth.length - 1) && (orth.charAt(i + 1) == "ê") { // e: <êê>
+            if ((i != orth.length - 1) && (orth.charAt(i + 1) == "ê")) { // e: <êê>
                 phon += "e:";
                 skip = 1;
             }
@@ -120,11 +121,15 @@ function PHONETICTOSYLLABLE(INPUT1) {
     return syll;
 }
 
-
+// NOT FINISHED
 // Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
 // and returns the string with the [phonetic] portion (and /phonemic/ portion todo) filled based off of the orthography
 function PHONFILL(INPUT1){
-
+    var filled;
+    filled = INPUT1;
+    filled = PHONETICFILL(filled);
+    filled = PHONEMICFILL(filled);
+    return filled;
 }
 
 // Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
@@ -136,7 +141,7 @@ function PHONETICFILL(INPUT1) {
     postBracket = -1;
     isOrtho = 0;
     ortho = ""
-    for i in range(len(unfilled)) {
+    for (i = 0; i < unfilled.length; i++) {
         if (unfilled.charAt(i) == "[") {
             prevBracket = i;
         }
@@ -153,9 +158,10 @@ function PHONETICFILL(INPUT1) {
             ortho += unfilled.charAt(i);
         }
     }
-    return unfilled[:prevBracket + 1] + orth_to_phonetic(ortho) + unfilled[postBracket:];
+    return unfilled.slice(0, prevBracket + 1) + ORTHTOPHONETIC(ortho) + unfilled.slice(postBracket, unfilled.length);
 }
 
+// NOT FINISHED
 // Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
 // and returns the string with the /phonemic/ portion filled based off of the orthography
 function PHONEMICFILL(INPUT1) {
