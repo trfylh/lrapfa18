@@ -1,8 +1,32 @@
 // Writen by Teela Huff (thuff@berkeley.edu) for LRAP on 19 September 2018
 // Must be in JavaScript to be implemented as a function in Google Sheets
 
+// Takes in an unfilled string panãra /phonemic/[phonetic]<orthography>(author,year,page){POR,ENG}|note|
+// and a filler string to be placed between the left input3 and right input4 (ex. "<" and ">")
+function FILLAT(INPUT1, INPUT2, INPUT3, INPUT4) {
+    var unfilled, filler, leftLim, rightLim, prevBracket, postBracket;
+    unfilled = INPUT1;
+    filler = INPUT2;
+    leftLim = INPUT3;
+    rightLim = INPUT4;
+    prevBracket = -1;
+    postBracket = -1;
+    if (filler == "") {
+      return unfilled;
+    }
+    for (i = 0; i < unfilled.length; i++) {
+        if (unfilled.charAt(i) == leftLim && prevBracket == -1) {
+            prevBracket = i;
+        }
+        else if (unfilled.charAt(i) == rightLim) {
+            postBracket = i;
+        }
+    }
+    return unfilled.slice(0, prevBracket + 1) + filler + unfilled.slice(postBracket, unfilled.length);
+}
+
 // Takes in a string of panãra orthography and returns the phonetic form.
-// ex. takes in "nãnsy" and returns "nãnsɯ"
+// ex. takes in "nãnsy" and returns "nãn.sɯ"
 // TO DO: checking for <j> in onset and <n> in coda
 function ORTHTOPHONETIC(INPUT1) {
     var orth, phon, skip, isV;
@@ -15,36 +39,58 @@ function ORTHTOPHONETIC(INPUT1) {
             skip = 0;
             continue;
         }
-        // consonants
-        // bilabials
+        // consonants with different phonetic and orthographic transcriptions
         if ((i != orth.length - 1) && orth.charAt(i) == "n" && (orth.charAt(i + 1) == "p")) { // <np>
             phon += "m͡p";
             skip = 1;
+            if (isV) {
+                phon += ".";
+                isV = 0;
+            }
         }
-        // alveolars
         else if ((i != orth.length - 1) && orth.charAt(i) == "n" && (orth.charAt(i + 1) == "t")) { // n͡t <nt>
             phon += "n͡t";
             skip = 1;
+            if (isV) {
+                phon += ".";
+                isV = 0;
+            }
         }
         else if (orth.charAt(i) == "r") { // ɾ <r>
             phon += "ɾ";
+            if (isV) {
+                phon += ".";
+                isV = 0;
+            }
         }
-        // velars
         else if (orth.charAt(i) == "j") { // ŋ <j>
             phon += "ŋ";
+            if (isV) {
+                phon += ".";
+                isV = 0;
+            }
         }
         else if ((i != orth.length - 1) && orth.charAt(i) == "n" && (orth.charAt(i + 1) == "k")) { // ŋ͡k <nk>
             phon += "ŋ͡k";
+            if (isV) {
+                phon += ".";
+                isV = 0;
+            }
         }
-        // vowels
+        // all vowels
         // orals
         else if (orth.charAt(i) == "i") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "i")) { // i: <ii>
                 phon += "i:";
                 skip = 1;
             }
+            else { // i <i>
+                phon += "i";
+            }
         }
         else if (orth.charAt(i) == "ê") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "ê")) { // e: <êê>
                 phon += "e:";
                 skip = 1;
@@ -54,6 +100,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "e") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "e")) { // ɛ: <ee>
                 phon += "ɛ:";
                 skip = 1;
@@ -63,6 +110,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "y") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "y")) { // ɯ: <yy>
                 phon += "ɯ:";
                 skip = 1;
@@ -72,6 +120,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "â") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "â")) { // ɤ: <ââ>
                 phon += "ɤ:";
                 skip = 1;
@@ -80,6 +129,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "a") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "a")) { // a: <aa>
                 phon += "a:";
                 skip = 1;
@@ -89,6 +139,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "u") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "u")) { // u: <uu>
                 phon += "u:";
                 skip = 1;
@@ -98,6 +149,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "ô") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "ô")) { // o: <ôô>
                 phon += "o:";
                 skip = 1;
@@ -107,6 +159,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "o") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "o")) { // ɔ: <oo>
                 phon += "ɔ:";
                 skip = 1;
@@ -117,6 +170,7 @@ function ORTHTOPHONETIC(INPUT1) {
         }
         // nasals
         else if (orth.charAt(i) == "ĩ") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "ĩ")) { // ĩ: <ĩĩ>
                 phon += "ĩ:";
                 skip = 1;
@@ -126,6 +180,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "ẽ") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "ẽ")) { // ẽ: <ẽ>
                 phon += "ẽ:";
                 skip = 1;
@@ -135,6 +190,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "ỹ") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "ỹ")) { // ɯ̃: <ỹỹ>
                 phon += "ɯ̃:";
                 skip = 1;
@@ -144,6 +200,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "ã") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "ã")) { // ã: <ã>
                 phon += "ã:";
                 skip = 1;
@@ -153,6 +210,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "ũ") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "ũ")) { // ũ: <ũ>
                 phon += "ũ:";
                 skip = 1;
@@ -162,6 +220,7 @@ function ORTHTOPHONETIC(INPUT1) {
             }
         }
         else if (orth.charAt(i) == "õ") {
+            isV = 1;
             if ((i != orth.length - 1) && (orth.charAt(i + 1) == "õ")) { // õ: <õ>
                 phon += "õ:";
                 skip = 1;
@@ -170,19 +229,18 @@ function ORTHTOPHONETIC(INPUT1) {
                 phon += "õ";
             }
         }
+        // all consonants with the same phonetic and orthographic transcription
         else {
             phon += orth.charAt(i);
+            if (isV && (i != orth.length - 1)) {
+                isV = 0;
+                if (orth.charAt(i) != "," && orth.charAt(i) != " ") { // in case of multiple words separated by comma
+                    phon += ".";
+                }
+            }
         }
     }
     return phon;
-}
-
-// Takes in a string of panãra phonetic without syllable and stress marks
-// and returns the phonetic form.
-// ex. takes in "nãnsy" and returns "nãn.ˈsɯ"
-function PHONETICTOSYLLABLE(INPUT1) {
-    syll = "";
-    return syll;
 }
 
 // NOT FINISHED
@@ -199,30 +257,23 @@ function PHONFILL(INPUT1){
 // Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
 // and returns the string with the [phonetic] portion filled based off of the orthography
 function PHONETICFILL(INPUT1) {
-    var unfilled, prevBracket, postBracket;
+    var unfilled, filler, isOrtho;
     unfilled = INPUT1;
-    prevBracket = -1;
-    postBracket = -1;
+    filler = "";
     isOrtho = 0;
-    ortho = ""
     for (i = 0; i < unfilled.length; i++) {
-        if (unfilled.charAt(i) == "[") {
-            prevBracket = i;
-        }
-        else if (unfilled.charAt(i) == "]") {
-            postBracket = i;
-        }
-        else if (unfilled.charAt(i) == "<") {
+        if (unfilled.charAt(i) == "<") {
             isOrtho = 1;
         }
         else if (unfilled.charAt(i) == ">") {
             break;
         }
         else if (isOrtho == 1) {
-            ortho += unfilled.charAt(i);
+            filler += unfilled.charAt(i);
         }
     }
-    return unfilled.slice(0, prevBracket + 1) + ORTHTOPHONETIC(ortho) + unfilled.slice(postBracket, unfilled.length);
+    filler = ORTHTOPHONETIC(filler);
+    return FILLAT(unfilled, filler, "[", "]");
 }
 
 // NOT FINISHED
