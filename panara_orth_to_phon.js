@@ -66,8 +66,25 @@ function GETV(INPUT1) {
 
 // consonant groups for syllabification:
 // (C1)(C2)V(C3).C1
-// Returns a list of C1 options and POA
-function GETC1(INPUT1) {
+// C1C2 -> C1 cannot match in POA with following C2
+// C3.C1 -> C3 must match in POA with following C1
+// Returns a list of C1 options and POA for (C1)(C2)V
+function GETC1FIRST(INPUT1) {
+    var cons;
+    cons = {};
+    cons["p"] = "bilabial";
+    cons["t"] = "alveolar";
+    cons["s"] = "palatal";
+    cons["k"] = "velar";
+    cons["m͡p"] = "bilabial";
+    cons["n͡t"] = "alveolar";
+    cons["n͡s"] = "palatal";
+    cons["ŋ͡k"] = "velar";
+    return cons;
+}
+
+// Returns a list of C1 options and POA for V(C3).C1
+function GETC1SECOND(INPUT1) {
     var cons;
     cons = {};
     cons["p"] = "bilabial";
