@@ -83,24 +83,6 @@ function GETC1FIRST(INPUT1) {
     return cons;
 }
 
-// Returns a list of C1 options and POA for V(C3).C1
-function GETC1SECOND(INPUT1) {
-    var cons;
-    cons = {};
-    cons["p"] = "bilabial";
-    cons["t"] = "alveolar";
-    cons["s"] = "palatal";
-    cons["k"] = "velar";
-    cons["m"] = "bilabial";
-    cons["n"] = "alveolar";
-    cons["ɲ"] = "palatal";
-    cons["ŋ"] = "velar";
-    cons["w"] = "bilabial";
-    cons["ɾ"] = "alveolar";
-    cons["j"] = "palatal"
-    return cons;
-}
-
 // Returns a list of C2 options and POA
 function GETC2(INPUT1) {
     var cons;
@@ -124,6 +106,124 @@ function GETC3(INPUT1) {
     cons["ɲ"] = "palatal";
     cons["ŋ"] = "velar";
     return cons;
+}
+
+// Returns a list of C1 options and POA for V(C3).C1
+function GETC1SECOND(INPUT1) {
+    var cons;
+    cons = {};
+    cons["p"] = "bilabial";
+    cons["t"] = "alveolar";
+    cons["s"] = "palatal";
+    cons["k"] = "velar";
+    cons["m"] = "bilabial";
+    cons["n"] = "alveolar";
+    cons["ɲ"] = "palatal";
+    cons["ŋ"] = "velar";
+    cons["w"] = "bilabial";
+    cons["ɾ"] = "alveolar";
+    cons["j"] = "palatal"
+    return cons;
+}
+
+function GETCPOA(INPUT1) {
+    var cons;
+    cons = {};
+    cons["p"] = "bilabial"; // singleton obstruent
+    cons["t"] = "alveolar";
+    cons["s"] = "palatal";
+    cons["k"] = "velar";
+    cons["pp"] = "bilabial"; // geminate obstruent
+    cons["tt"] = "alveolar";
+    cons["ss"] = "palatal";
+    cons["kk"] = "velar";
+    cons["m"] = "bilabial"; // singleton nasal
+    cons["n"] = "alveolar";
+    cons["ɲ"] = "palatal";
+    cons["ŋ"] = "velar";
+    cons["m͡m"] = "bilabial"; // geminate nasal
+    cons["n͡n"] = "alveolar";
+    cons["m͡p"] = "bilabial"; // post-oralized nasal
+    cons["n͡t"] = "alveolar";
+    cons["n͡s"] = "palatal";
+    cons["ŋ͡k"] = "velar";
+    cons["w"] = "bilabial"; // approximant
+    cons["ɾ"] = "alveolar";
+    cons["j"] = "palatal";
+    return cons;
+}
+
+function GETSYLLV(INPUT1) {
+    var vowels;
+    vowels = [];
+    vowels.push("i"); // short oral
+    vowels.push("ɯ");
+    vowels.push("u");
+    vowels.push("e");
+    vowels.push("ɤ");
+    vowels.push("o");
+    vowels.push("ɛ");
+    vowels.push("a");
+    vowels.push("ɔ");
+    vowels.push("i:"); // long oral
+    vowels.push("ɯ:");
+    vowels.push("u:");
+    vowels.push("e:");
+    vowels.push("ɤ:");
+    vowels.push("o:");
+    vowels.push("ɛ:");
+    vowels.push("a:");
+    vowels.push("ɔ:");
+    vowels.push("ĩ"); // short nasal
+    vowels.push("ɯ̃");
+    vowels.push("ũ");
+    vowels.push("ẽ");
+    vowels.push("ã");
+    vowels.push("õ");
+    vowels.push("ĩ:"); // long nasal
+    vowels.push("ũ:");
+    vowels.push("ẽ:");
+    vowels.push("ã:");
+    vowels.push("õ:");
+    return vowels;
+
+}
+
+// Takes in a phonetic form without syllabification and returns one with syllabification
+function SYLLABIFYPHONETIC(INPUT1) {
+    var phon, syll, c1first, c1second, c2, c3, syllV, afterV, ;
+    phon = INPUT1;
+    syll = "";
+    cPOA = GETCPOA(1);
+    syllV = GETSYLLV(1);
+    afterV = 0;
+    // move consider current two, if not in cons or vowels, then assign first
+    // and move one forward, repeat
+    for (i = 0; i < phon.length; i++) {
+        var first = phon.charAt(i);
+        if (first in vowels) {
+            afterV = 1;
+            syll += first;
+        }
+        else if (afterV == 1) { // if in syllable coda, at potential C3
+            if (i != phon.length - 1) { // if two or more C left
+                var next = phon.charAt(i + 1);
+                if (cPOA[first] == cPOA[next]) { // if POA matches, then VC3.
+                    syll += first + "."
+                    afterV = 0;
+                } else { // if POA does not match, then V.C1
+                    syll += "." + first
+                    afterV = 0;
+                }
+
+            } else { // if only one C left
+                syll += first;
+                afterV = 0;
+            }
+        } else {
+            syll += first;
+        }
+    return syll;
 }
 
 // Takes in an unfilled string panãra /phonemic/[phonetic]<orthography>(author,year,page){POR,ENG}|note|
