@@ -64,6 +64,7 @@ function GETV(INPUT1) {
     return vowels;
 }
 
+//DELETE THIS!!!
 // consonant groups for syllabification:
 // (C1)(C2)V(C3).C1
 // C1C2 -> C1 cannot match in POA with following C2
@@ -83,6 +84,7 @@ function GETC1FIRST(INPUT1) {
     return cons;
 }
 
+//DELETE THIS!!!
 // Returns a list of C2 options and POA
 function GETC2(INPUT1) {
     var cons;
@@ -93,6 +95,7 @@ function GETC2(INPUT1) {
     return cons;
 }
 
+//DELETE THIS!!!
 // Returns a list of C3 options and POA
 function GETC3(INPUT1) {
     var cons;
@@ -108,6 +111,7 @@ function GETC3(INPUT1) {
     return cons;
 }
 
+//DELETE THIS!!!
 // Returns a list of C1 options and POA for V(C3).C1
 function GETC1SECOND(INPUT1) {
     var cons;
@@ -322,6 +326,7 @@ function PHONETICFILL(INPUT1) {
         }
     }
     filler = ORTHTOPHONETIC(filler);
+    filler = SYLLABIFYPHONETIC(filler);
     Utilities.sleep(1000);
     return FILLAT(unfilled, filler, "[", "]");
 }
