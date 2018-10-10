@@ -4,7 +4,7 @@
 // Returns a dict of Panãra consonants orthography conventions
 function GETC(INPUT1) {
     var cons;
-    cons = {}; // all consonants except
+    cons = {}; // all consonants except ɲ (done after syllabification)
     cons["p"] = "p"; // singleton obstruent
     cons["t"] = "t";
     cons["s"] = "s";
@@ -25,36 +25,6 @@ function GETC(INPUT1) {
     cons["w"] = "w"; // approximant
     cons["r"] = "ɾ";
     cons["j"] = "j";
-    vowels = {};
-    vowels["i"] = "i"; // short oral
-    vowels["y"] = "ɯ";
-    vowels["u"] = "u";
-    vowels["ê"] = "e";
-    vowels["â"] = "ɤ";
-    vowels["ô"] = "o";
-    vowels["e"] = "ɛ";
-    vowels["a"] = "a";
-    vowels["o"] = "ɔ";
-    vowels["ii"] = "i:"; // long oral
-    vowels["yy"] = "ɯ:";
-    vowels["uu"] = "u:";
-    vowels["êê"] = "e:";
-    vowels["ââ"] = "ɤ:";
-    vowels["ôô"] = "o:";
-    vowels["ee"] = "ɛ:";
-    vowels["aa"] = "a:";
-    vowels["oo"] = "ɔ:";
-    vowels["ĩ"] = "ĩ"; // short nasal
-    vowels["ỹ"] = "ɯ̃";
-    vowels["ũ"] = "ũ";
-    vowels["ẽ"] = "ẽ";
-    vowels["ã"] = "ã";
-    vowels["õ"] = "õ";
-    vowels["ĩĩ"] = "ĩ:"; // long nasal
-    vowels["ũũ"] = "ũ:";
-    vowels["ẽẽ"] = "ẽ:";
-    vowels["ãã"] = "ã:";
-    vowels["õõ"] = "õ:";
     return cons;
 }
 
@@ -92,6 +62,51 @@ function GETV(INPUT1) {
     vowels["ãã"] = "ã:";
     vowels["õõ"] = "õ:";
     return vowels;
+}
+
+// consonant groups for syllabification:
+// (C1)(C2)V(C3).C1
+// Returns a list of C1 options
+function GETC1(INPUT1) {
+    var cons;
+    cons = [];
+    cons.push("p");
+    cons.push("t");
+    cons.push("s");
+    cons.push("k");
+    cons.push("m");
+    cons.push("n");
+    cons.push("ɲ");
+    cons.push("ŋ");
+    cons.push("w");
+    cons.push("ɾ");
+    cons.push("j");
+    return cons;
+}
+
+// Returns a list of C2 options
+function GETC2(INPUT1) {
+    var cons;
+    cons = [];
+    cons.push("w");
+    cons.push("ɾ");
+    cons.push("j");
+    return cons;
+}
+
+// Returns a list of C3 options
+function GETC3(INPUT1) {
+    var cons;
+    cons = [];
+    cons.push("p");
+    cons.push("t");
+    cons.push("s");
+    cons.push("k");
+    cons.push("m");
+    cons.push("n");
+    cons.push("ɲ");
+    cons.push("ŋ");
+    return cons;
 }
 
 // Takes in an unfilled string panãra /phonemic/[phonetic]<orthography>(author,year,page){POR,ENG}|note|
