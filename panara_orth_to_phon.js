@@ -1,6 +1,60 @@
 // Writen by Teela Huff (thuff@berkeley.edu) for LRAP on 19 September 2018
 // Must be in JavaScript to be implemented as a function in Google Sheets
 
+// Panãra consonants and vowels orthography conventions
+var cons, vowels;
+cons = {}; // all consonants except
+cons["p"] = "p"; // singleton obstruent
+cons["t"] = "t";
+cons["s"] = "s";
+cons["k"] = "k";
+cons["pp"] = "pp"; // geminate obstruent
+cons["tt"] = "tt";
+cons["ss"] = "ss";
+cons["kk"] = "kk";
+cons["m"] = "m"; // singleton nasal
+cons["n"] = "n";
+cons["j"] = "ŋ"; // ŋ<j> == ["j"] = "ŋ"
+cons["mm"] = "m͡m"; // geminate nasal
+cons["nn"] = "n͡n";
+cons["np"] = "m͡p"; // post-oralized nasal
+cons["nt"] = "n͡t";
+cons["ns"] = "n͡s";
+cons["nk"] = "ŋ͡k";
+cons["w"] = "w"; // approximant
+cons["r"] = "ɾ";
+cons["j"] = "j";
+vowels = {};
+vowels["i"] = "i"; // short oral
+vowels["y"] = "ɯ";
+vowels["u"] = "u";
+vowels["ê"] = "e";
+vowels["â"] = "ɤ";
+vowels["ô"] = "o";
+vowels["e"] = "ɛ";
+vowels["a"] = "a";
+vowels["o"] = "ɔ";
+vowels["ii"] = "i:"; // long oral
+vowels["yy"] = "ɯ:";
+vowels["uu"] = "u:";
+vowels["êê"] = "e:";
+vowels["ââ"] = "ɤ:";
+vowels["ôô"] = "o:";
+vowels["ee"] = "ɛ:";
+vowels["aa"] = "a:";
+vowels["oo"] = "ɔ:";
+vowels["ĩ"] = "ĩ"; // short nasal
+vowels["ỹ"] = "ɯ̃";
+vowels["ũ"] = "ũ";
+vowels["ẽ"] = "ẽ";
+vowels["ã"] = "ã";
+vowels["õ"] = "õ";
+vowels["ĩĩ"] = "ĩ:"; // long nasal
+vowels["ũũ"] = "ũ:";
+vowels["ẽẽ"] = "ẽ:";
+vowels["ãã"] = "ã:";
+vowels["õõ"] = "õ:";
+
 // Takes in an unfilled string panãra /phonemic/[phonetic]<orthography>(author,year,page){POR,ENG}|note|
 // and a filler string to be placed between the left input3 and right input4 (ex. "<" and ">")
 function FILLAT(INPUT1, INPUT2, INPUT3, INPUT4) {
@@ -25,15 +79,16 @@ function FILLAT(INPUT1, INPUT2, INPUT3, INPUT4) {
     return unfilled.slice(0, prevBracket + 1) + filler + unfilled.slice(postBracket, unfilled.length);
 }
 
-// Takes in a string of panãra orthography and returns the phonetic form.
+// Takes in a string of panãra orthography and returns the wide phonetic form.
 // ex. takes in "nãnsy" and returns "nãn.sɯ"
 // TO DO: checking for <j> in onset and <n> in coda
 function ORTHTOPHONETIC(INPUT1) {
-    var orth, phon, skip, isV;
+    var orth, phon;
     orth = INPUT1;
     phon = "";
-    skip = 0; // in the case of repeated C or V in orthography
-    isV = 0; // for adding syllave breaks after VC on VC.CCVC etc.
+
+    // move consider current two, if not in cons or vowels, then assign first
+    // and move one forward, repeat
     for (i = 0; i < orth.length; i++) {
         if (skip == 1) {
             skip = 0;
