@@ -66,46 +66,46 @@ function GETV(INPUT1) {
 
 // consonant groups for syllabification:
 // (C1)(C2)V(C3).C1
-// Returns a list of C1 options
+// Returns a list of C1 options and POA
 function GETC1(INPUT1) {
     var cons;
-    cons = [];
-    cons.push("p");
-    cons.push("t");
-    cons.push("s");
-    cons.push("k");
-    cons.push("m");
-    cons.push("n");
-    cons.push("ɲ");
-    cons.push("ŋ");
-    cons.push("w");
-    cons.push("ɾ");
-    cons.push("j");
+    cons = {};
+    cons["p"] = "bilabial";
+    cons["t"] = "alveolar";
+    cons["s"] = "palatal";
+    cons["k"] = "velar";
+    cons["m"] = "bilabial";
+    cons["n"] = "alveolar";
+    cons["ɲ"] = "palatal";
+    cons["ŋ"] = "velar";
+    cons["w"] = "bilabial";
+    cons["ɾ"] = "alveolar";
+    cons["j"] = "palatal"
     return cons;
 }
 
-// Returns a list of C2 options
+// Returns a list of C2 options and POA
 function GETC2(INPUT1) {
     var cons;
-    cons = [];
-    cons.push("w");
-    cons.push("ɾ");
-    cons.push("j");
+    cons = {};
+    cons["w"] = "bilabial";
+    cons["ɾ"] = "alveolar";
+    cons["j"] = "palatal"
     return cons;
 }
 
-// Returns a list of C3 options
+// Returns a list of C3 options and POA
 function GETC3(INPUT1) {
     var cons;
-    cons = [];
-    cons.push("p");
-    cons.push("t");
-    cons.push("s");
-    cons.push("k");
-    cons.push("m");
-    cons.push("n");
-    cons.push("ɲ");
-    cons.push("ŋ");
+    cons = {};
+    cons["p"] = "bilabial";
+    cons["t"] = "alveolar";
+    cons["s"] = "palatal";
+    cons["k"] = "velar";
+    cons["m"] = "bilabial";
+    cons["n"] = "alveolar";
+    cons["ɲ"] = "palatal";
+    cons["ŋ"] = "velar";
     return cons;
 }
 
