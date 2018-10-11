@@ -132,6 +132,10 @@ function SYLLABIFYPHONETIC(INPUT1) {
     // and move one forward, repeat
     for (i = 0; i < phon.length; i++) {
         var first = phon.charAt(i);
+        if (first == ":") {
+            syll += first;
+            continue;
+        }
         if (syllV.indexOf(first) >= 0) {
             if (afterV == 1) {
                 syll += "." + first;
@@ -143,12 +147,14 @@ function SYLLABIFYPHONETIC(INPUT1) {
         else if (afterV == 1) { // if in syllable coda, at potential C3
             if (i != phon.length - 1) { // if two or more C left
                 var next = phon.charAt(i + 1);
-                if (first == "ŋ͡") { //MAKE SEPARATE GEMINATE TEST AND THEN TEST POA
-                    return cPOA[first]; // NEVER GETS HERE...HELP SPLITTING GEMINATE?
-                }
-                if (cPOA[first] == cPOA[next]) { // if POA matches, then VC3.
-                    syll += first + "TESTING..."; // REMOVE THIS LATER CHANGE IT TO .
+                if (first == "͡") {
                     afterV = 0;
+                    continue;
+                } else if (cPOA[first] == cPOA[next]) { // if POA matches, then VC3.
+                    syll += first + ".";
+                    afterV = 0;
+                } else if (next == "͡") { // if geminate with ͡
+                    syll += first + next + ".";
                 } else { // if POA does not match, then V.C1
                     syll += "." + first;
                     afterV = 0;
