@@ -64,96 +64,23 @@ function GETV(INPUT1) {
     return vowels;
 }
 
-//DELETE THIS!!!
-// consonant groups for syllabification:
-// (C1)(C2)V(C3).C1
-// C1C2 -> C1 cannot match in POA with following C2
-// C3.C1 -> C3 must match in POA with following C1
-// Returns a list of C1 options and POA for (C1)(C2)V
-function GETC1FIRST(INPUT1) {
-    var cons;
-    cons = {};
-    cons["p"] = "bilabial";
-    cons["t"] = "alveolar";
-    cons["s"] = "palatal";
-    cons["k"] = "velar";
-    cons["m͡p"] = "bilabial";
-    cons["n͡t"] = "alveolar";
-    cons["n͡s"] = "palatal";
-    cons["ŋ͡k"] = "velar";
-    return cons;
-}
-
-//DELETE THIS!!!
-// Returns a list of C2 options and POA
-function GETC2(INPUT1) {
-    var cons;
-    cons = {};
-    cons["w"] = "bilabial";
-    cons["ɾ"] = "alveolar";
-    cons["j"] = "palatal"
-    return cons;
-}
-
-//DELETE THIS!!!
-// Returns a list of C3 options and POA
-function GETC3(INPUT1) {
-    var cons;
-    cons = {};
-    cons["p"] = "bilabial";
-    cons["t"] = "alveolar";
-    cons["s"] = "palatal";
-    cons["k"] = "velar";
-    cons["m"] = "bilabial";
-    cons["n"] = "alveolar";
-    cons["ɲ"] = "palatal";
-    cons["ŋ"] = "velar";
-    return cons;
-}
-
-//DELETE THIS!!!
-// Returns a list of C1 options and POA for V(C3).C1
-function GETC1SECOND(INPUT1) {
-    var cons;
-    cons = {};
-    cons["p"] = "bilabial";
-    cons["t"] = "alveolar";
-    cons["s"] = "palatal";
-    cons["k"] = "velar";
-    cons["m"] = "bilabial";
-    cons["n"] = "alveolar";
-    cons["ɲ"] = "palatal";
-    cons["ŋ"] = "velar";
-    cons["w"] = "bilabial";
-    cons["ɾ"] = "alveolar";
-    cons["j"] = "palatal"
-    return cons;
-}
-
 function GETCPOA(INPUT1) {
     var cons;
     cons = {};
     cons["p"] = "bilabial"; // singleton obstruent
-    cons["t"] = "alveolar";
-    cons["s"] = "palatal";
+    cons["t"] = "alveolarandpalatal";
+    cons["s"] = "alveolarandpalatal";
     cons["k"] = "velar";
-    cons["pp"] = "bilabial"; // geminate obstruent
-    cons["tt"] = "alveolar";
-    cons["ss"] = "palatal";
-    cons["kk"] = "velar";
     cons["m"] = "bilabial"; // singleton nasal
-    cons["n"] = "alveolar";
-    cons["ɲ"] = "palatal";
+    cons["n"] = "alveolarandpalatal";
+    cons["ɲ"] = "alveolarandpalatal";
     cons["ŋ"] = "velar";
-    cons["m͡m"] = "bilabial"; // geminate nasal
-    cons["n͡n"] = "alveolar";
-    cons["m͡p"] = "bilabial"; // post-oralized nasal
-    cons["n͡t"] = "alveolar";
-    cons["n͡s"] = "palatal";
-    cons["ŋ͡k"] = "velar";
+    cons["m͡"] = "bilabial"; // geminate nasal
+    cons["n͡"] = "alveolarandpalatal";
+    cons["ŋ͡"] = "velar";
     cons["w"] = "bilabial"; // approximant
-    cons["ɾ"] = "alveolar";
-    cons["j"] = "palatal";
+    cons["ɾ"] = "alveolarandpalatal";
+    cons["j"] = "alveolarandpalatal";
     return cons;
 }
 
@@ -195,7 +122,7 @@ function GETSYLLV(INPUT1) {
 
 // Takes in a phonetic form without syllabification and returns one with syllabification
 function SYLLABIFYPHONETIC(INPUT1) {
-    var phon, syll, c1first, c1second, c2, c3, syllV, afterV, ;
+    var phon, syll, cPOA, syllV, afterV;
     phon = INPUT1;
     syll = "";
     cPOA = GETCPOA(1);
@@ -205,18 +132,25 @@ function SYLLABIFYPHONETIC(INPUT1) {
     // and move one forward, repeat
     for (i = 0; i < phon.length; i++) {
         var first = phon.charAt(i);
-        if (first in vowels) {
-            afterV = 1;
-            syll += first;
+        if (syllV.indexOf(first) >= 0) {
+            if (afterV == 1) {
+                syll += "." + first;
+            } else {
+                afterV = 1;
+                syll += first;
+            }
         }
         else if (afterV == 1) { // if in syllable coda, at potential C3
             if (i != phon.length - 1) { // if two or more C left
                 var next = phon.charAt(i + 1);
+                if (first == "ŋ͡") { //MAKE SEPARATE GEMINATE TEST AND THEN TEST POA
+                    return cPOA[first]; // NEVER GETS HERE...HELP SPLITTING GEMINATE?
+                }
                 if (cPOA[first] == cPOA[next]) { // if POA matches, then VC3.
-                    syll += first + "."
+                    syll += first + "TESTING..."; // REMOVE THIS LATER CHANGE IT TO .
                     afterV = 0;
                 } else { // if POA does not match, then V.C1
-                    syll += "." + first
+                    syll += "." + first;
                     afterV = 0;
                 }
 
@@ -227,6 +161,7 @@ function SYLLABIFYPHONETIC(INPUT1) {
         } else {
             syll += first;
         }
+    }
     return syll;
 }
 
