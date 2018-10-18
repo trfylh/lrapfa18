@@ -16,12 +16,12 @@ function GETC(INPUT1) {
     cons["m"] = "m"; // singleton nasal
     cons["n"] = "n";
     cons["j"] = "ŋ"; // ŋ<j> == ["j"] = "ŋ"
-    cons["mm"] = "m͡m"; // geminate nasal
-    cons["nn"] = "n͡n";
-    cons["np"] = "m͡p"; // post-oralized nasal
-    cons["nt"] = "n͡t";
-    cons["ns"] = "n͡s";
-    cons["nk"] = "ŋ͡k";
+    cons["mm"] = "mm"; // geminate nasal
+    cons["nn"] = "nn";
+    cons["np"] = "mp"; // post-oralized nasal
+    cons["nt"] = "nt";
+    cons["ns"] = "ns";
+    cons["nk"] = "ŋk";
     cons["w"] = "w"; // approximant
     cons["r"] = "ɾ";
     cons["j"] = "j";
@@ -75,9 +75,6 @@ function GETCPOA(INPUT1) {
     cons["n"] = "alveolarandpalatal";
     cons["ɲ"] = "alveolarandpalatal";
     cons["ŋ"] = "velar";
-    cons["m͡"] = "bilabial"; // geminate nasal
-    cons["n͡"] = "alveolarandpalatal";
-    cons["ŋ͡"] = "velar";
     cons["w"] = "bilabial"; // approximant
     cons["ɾ"] = "alveolarandpalatal";
     cons["j"] = "alveolarandpalatal";
@@ -147,14 +144,9 @@ function SYLLABIFYPHONETIC(INPUT1) {
         else if (afterV == 1) { // if in syllable coda, at potential C3
             if (i != phon.length - 1) { // if two or more C left
                 var next = phon.charAt(i + 1);
-                if (first == "͡") {
-                    afterV = 0;
-                    continue;
-                } else if (cPOA[first] == cPOA[next]) { // if POA matches, then VC3.
+                if (cPOA[first] == cPOA[next]) { // if POA matches, then VC3.
                     syll += first + ".";
                     afterV = 0;
-                } else if (next == "͡") { // if geminate with ͡
-                    syll += first + next + ".";
                 } else { // if POA does not match, then V.C1
                     syll += "." + first;
                     afterV = 0;
