@@ -67,15 +67,15 @@ function GETV(INPUT1) {
 function GETCPOA(INPUT1) {
     var cons;
     cons = {};
-    cons["p"] = "bilabial"; // singleton obstruent
+    cons["p"] = "bilabial"; // singleton obstruents
     cons["t"] = "alveolarandpalatal";
     cons["s"] = "alveolarandpalatal";
     cons["k"] = "velar";
-    cons["m"] = "bilabial"; // singleton nasal
+    cons["m"] = "bilabial"; // singleton nasals
     cons["n"] = "alveolarandpalatal";
     cons["ɲ"] = "alveolarandpalatal";
     cons["ŋ"] = "velar";
-    cons["w"] = "bilabial"; // approximant
+    cons["w"] = "bilabial"; // approximants
     cons["ɾ"] = "alveolarandpalatal";
     cons["j"] = "alveolarandpalatal";
     return cons;
@@ -114,7 +114,40 @@ function GETSYLLV(INPUT1) {
     vowels.push("ã:");
     vowels.push("õ:");
     return vowels;
+}
 
+function GETNASALV(INPUT1) {
+    var vowels;
+    vowels = [];
+    vowels.push("ĩ"); // short nasal
+    vowels.push("ɯ̃");
+    vowels.push("ũ");
+    vowels.push("ẽ");
+    vowels.push("ã");
+    vowels.push("õ");
+    vowels.push("ĩ:"); // long nasal
+    vowels.push("ũ:");
+    vowels.push("ẽ:");
+    vowels.push("ã:");
+    vowels.push("õ:");
+    return vowels;
+}
+
+// Preceding V for n in coda that becomes ŋ {u, u:, ũ, ũ:, o, o:, õ, õ:, ɔ, ɔ:}
+function GETENGMAV(INPUT1) {
+    var vowels;
+    vowels = [];
+    vowels.push("u"); // short oral
+    vowels.push("o");
+    vowels.push("ɔ");
+    vowels.push("u:"); // long oral
+    vowels.push("o:");
+    vowels.push("ɔ:");
+    vowels.push("ũ"); // short nasal
+    vowels.push("õ");
+    vowels.push("ũ:"); // long nasal
+    vowels.push("õ:");
+    return vowels;
 }
 
 // Takes in a phonetic form without syllabification and returns one with syllabification
@@ -133,7 +166,7 @@ function SYLLABIFYPHONETIC(INPUT1) {
             syll += first;
             continue;
         }
-        if (syllV.indexOf(first) >= 0) {
+        if (syllV.indexOf(first) >= 0) { // if is a V
             if (afterV == 1) {
                 syll += "." + first;
             } else {
@@ -189,7 +222,6 @@ function FILLAT(INPUT1, INPUT2, INPUT3, INPUT4) {
 
 // Takes in a string of panãra orthography and returns the wide phonetic form.
 // ex. takes in "nãnsy" and returns "nãn.sɯ"
-// TO DO: checking for <j> in onset and <n> in coda
 function ORTHTOPHONETIC(INPUT1) {
     var orth, phon, cons, vowels;
     orth = INPUT1;
@@ -237,6 +269,7 @@ function PHONFILL(INPUT1){
     filled = INPUT1;
     filled = PHONETICFILL(filled);
     filled = PHONEMICFILL(filled);
+    filled = NFILL(filled);
     return filled;
 }
 
@@ -262,6 +295,73 @@ function PHONETICFILL(INPUT1) {
     filler = SYLLABIFYPHONETIC(filler);
     Utilities.sleep(1000);
     return FILLAT(unfilled, filler, "[", "]");
+}
+
+// Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
+// and returns the string with the [phonetic] portion with ɲ in place of j in onset
+// and ɲ or ŋ in place of n in coda (given correct environments).
+function NFILL(INPUT1) {
+    var unfilled, filler, isPhon;
+    unfilled = INPUT1;
+    filler = "";
+    isPhon = 0;
+    for (i = 0; i < unfilled.length; i++) {
+        if (unfilled.charAt(i) == "[") {
+            isPhon = 1;
+        }
+        else if (unfilled.charAt(i) == "]") {
+            break;
+        }
+        else if (isPhon == 1) {
+            filler += unfilled.charAt(i);
+        }
+    }
+    filler = PHONETICN(filler);
+    Utilities.sleep(1000);
+    return FILLAT(unfilled, filler, "[", "]");
+}
+
+// Takes in a string of panãra syllabified panãra phonetic form and returns it with ɲ
+// in place of j in onset and ɲ or ŋ in place of n in coda (given correct environments).
+function PHONETICN(INPUT1) {
+    var oldphon, nphon, vowels, nasalvowels, engmavowels, incoda;
+    oldphon = INPUT1;
+    nphon = "";
+    vowels = GETSYLLV(1);
+    nasalvowels = GETNASALV(1);
+    engmavowels = GETENGMAV(1);
+    incoda = 0;
+    for (i = 0; i < oldphon.length; i++) {
+        var curr = oldphon.charAt(i);
+        if (curr == "j" && incoda == 0) { // if j and in onset
+            // if j is first, or if j is preceded by a syllable break (making it C1V)
+            if (i == 0 || (i != 0 && oldphon.charAt(i - 1) == ".")) {
+                // if following V is nasal
+                if (i != oldphon.length - 1 && nasalvowels.indexOf(oldphon.charAt(i + 1)) >= 0) {
+                    nphon += "ɲ";
+                } else {
+                    nphon += curr;
+                }
+            } else {
+                nphon += curr;
+            }
+        } else if (curr == "n" && incoda == 1) { // if n and in coda
+            if (engmavowels.indexOf(oldphon.charAt(i - 1)) >= 0) { // n is [ŋ] due to preceding V
+                nphon += "ŋ";
+            } else { // n is [ɲ] due to preceding V
+                nphon += "ɲ";
+            }
+        } else if (vowels.indexOf(curr) >= 0) { // if V, set in coda to 1
+            incoda = 1;
+            nphon += curr;
+        } else if (curr == ".") { // if at syllable break, set in coda to 0
+            incoda = 0;
+            nphon += curr;
+        } else {
+            nphon += curr;
+        }
+    }
+    return nphon;
 }
 
 // NOT FINISHED
