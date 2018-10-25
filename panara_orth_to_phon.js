@@ -331,7 +331,7 @@ function PHONETICN(INPUT1) {
     nasalvowels = GETNASALV(1);
     engmavowels = GETENGMAV(1);
     incoda = 0;
-    for (i = 0; i < oldphon.length; i++) {
+    for (i = 0; i < oldphon.length - 1; i++) { // includes penultimate final sound
         var curr = oldphon.charAt(i);
         if (curr == "j" && incoda == 0) { // if j and in onset
             // if j is first, or if j is preceded by a syllable break (making it C1V)
@@ -345,12 +345,6 @@ function PHONETICN(INPUT1) {
             } else {
                 nphon += curr;
             }
-        } else if (curr == "n" && incoda == 1) { // if n and in coda
-            if (engmavowels.indexOf(oldphon.charAt(i - 1)) >= 0) { // n is [ŋ] due to preceding V
-                nphon += "ŋ";
-            } else { // n is [ɲ] due to preceding V
-                nphon += "ɲ";
-            }
         } else if (vowels.indexOf(curr) >= 0) { // if V, set in coda to 1
             incoda = 1;
             nphon += curr;
@@ -360,6 +354,15 @@ function PHONETICN(INPUT1) {
         } else {
             nphon += curr;
         }
+    }
+    if (oldphon.charAt(oldphon.length - 1) == "n") { // checking ultimate sound, if n word final
+        if (engmavowels.indexOf(oldphon.charAt(oldphon.length - 2)) >= 0) { // n is [ŋ] due to preceding V
+            nphon += "ŋ";
+        } else { // n is [ɲ] due to preceding V
+            nphon += "ɲ";
+        }
+    } else {
+        nphon += oldphon.charAt(oldphon.length - 1); // if not n, add ultimate sound
     }
     return nphon;
 }
