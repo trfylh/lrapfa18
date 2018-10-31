@@ -57,6 +57,7 @@ function GETV(INPUT1) {
     vowels["ã"] = "ã";
     vowels["õ"] = "õ";
     vowels["ĩĩ"] = "ĩ:"; // long nasal
+    vowels["ỹỹ"] = "ɯ̃:";
     vowels["ũũ"] = "ũ:";
     vowels["ẽẽ"] = "ẽ:";
     vowels["ãã"] = "ã:";
