@@ -1,6 +1,33 @@
 // Writen by Teela Huff (thuff@berkeley.edu) for LRAP on 19 September 2018
 // Must be in JavaScript in order to be implemented as a script in Google Sheets
 
+// Returns a dict of Panãra consonant phonetic forms that change for phonemic forms
+function GETPHONCHANGED(INPUT1) {
+    var cons;
+    cons = {}; // all consonants except ɲ (done after syllabification)
+    cons["p"] = "p"; // singleton obstruent
+    cons["t"] = "t";
+    cons["s"] = "s";
+    cons["k"] = "k";
+    cons["pp"] = "pp"; // geminate obstruent
+    cons["tt"] = "tt";
+    cons["ss"] = "ss";
+    cons["kk"] = "kk";
+    cons["m"] = "m"; // singleton nasal
+    cons["n"] = "n";
+    cons["j"] = "ŋ"; // ŋ<j> == ["j"] = "ŋ"
+    cons["mm"] = "mm"; // geminate nasal
+    cons["nn"] = "nn";
+    cons["mp"] = "mp"; // post-oralized nasal
+    cons["nt"] = "nt";
+    cons["ns"] = "ns";
+    cons["ŋk"] = "ŋk";
+    cons["w"] = "w"; // approximant
+    cons["r"] = "ɾ";
+    cons["j"] = "j";
+    return cons;
+}
+
 // Returns a dict of Panãra consonants orthography conventions
 function GETC(INPUT1) {
     var cons;
@@ -32,6 +59,7 @@ function GETC(INPUT1) {
 function GETV(INPUT1) {
     var vowels;
     vowels = {};
+    vowels["í"] = "í"; // not epenthetic i
     vowels["i"] = "i"; // short oral
     vowels["y"] = "ɯ";
     vowels["u"] = "u";
@@ -373,4 +401,49 @@ function PHONETICN(INPUT1) {
 // and returns the string with the /phonemic/ portion filled based off of the orthography
 function PHONEMICFILL(INPUT1) {
     return INPUT1;
+}
+
+// Takes in a string of panãra syllabified panãra phonetic form and returns the phonemic form
+function PHONETICTOPHONEMIC(INPUT1) {
+    var oldphon, nphon, vowels, nasalvowels, engmavowels, incoda;
+    oldphon = INPUT1;
+    nphon = "";
+    vowels = GETSYLLV(1);
+    nasalvowels = GETNASALV(1);
+    engmavowels = GETENGMAV(1);
+    incoda = 0;
+    for (i = 0; i < oldphon.length - 1; i++) { // includes penultimate final sound
+        var curr = oldphon.charAt(i);
+        if (curr == "j" && incoda == 0) { // if j and in onset
+            // if j is first, or if j is preceded by a syllable break (making it C1V)
+            if (i == 0 || (i != 0 && oldphon.charAt(i - 1) == ".")) {
+                // if following V is nasal
+                if (i != oldphon.length - 1 && nasalvowels.indexOf(oldphon.charAt(i + 1)) >= 0) {
+                    nphon += "ɲ";
+                } else {
+                    nphon += curr;
+                }
+            } else {
+                nphon += curr;
+            }
+        } else if (vowels.indexOf(curr) >= 0) { // if V, set in coda to 1
+            incoda = 1;
+            nphon += curr;
+        } else if (curr == ".") { // if at syllable break, set in coda to 0
+            incoda = 0;
+            nphon += curr;
+        } else {
+            nphon += curr;
+        }
+    }
+    if (oldphon.charAt(oldphon.length - 1) == "n") { // checking ultimate sound, if n word final
+        if (engmavowels.indexOf(oldphon.charAt(oldphon.length - 2)) >= 0) { // n is [ŋ] due to preceding V
+            nphon += "ŋ";
+        } else { // n is [ɲ] due to preceding V
+            nphon += "ɲ";
+        }
+    } else {
+        nphon += oldphon.charAt(oldphon.length - 1); // if not n, add ultimate sound
+    }
+    return nphon;
 }
