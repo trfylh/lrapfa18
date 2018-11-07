@@ -404,7 +404,6 @@ function PHONETICN(INPUT1) {
 // This function is not split into two functions like the previous steps because both
 // the phonetic and phonemic forms are changed, so keeping it in one is simpler.
 function TWOPHONFILL(INPUT1) {
-    return INPUT1;
     var unfilled, isPhon, phonetic, phonemic, postOrals, ntgems, vowels, nasalV;
     unfilled = INPUT1;
     isPhon = 0;
@@ -422,7 +421,7 @@ function TWOPHONFILL(INPUT1) {
             break;
         }
         else if (isPhon == 1) {
-            filler += unfilled.charAt(i);
+            phonetic += unfilled.charAt(i);
         }
     }
     // processing for phonetic to phonemic form and phonetic stress/V length
@@ -493,7 +492,9 @@ function TWOPHONFILL(INPUT1) {
             phonemic += first;
         }
     }
-    //ITERATE BACKWARDS NOW AND V LENGTH, STRESS, REMOVE . IN PHONEMIC OR REMOVE IT BEFORE???
+    //ITERATE BACKWARDS through phonemic to find first vowel, then
+    // iterate through phonetic to find that matching V and
+    // add stress and V length, but then check for V.a and change to penultimate
     Utilities.sleep(1000);
     unfilled = FILLAT(unfilled, phonetic, "[", "]");
     return FILLAT(unfilled, phonemic, "/", "/");
