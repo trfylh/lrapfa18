@@ -113,6 +113,7 @@ function GETCPOA(INPUT1) {
 function GETSYLLV(INPUT1) {
     var vowels;
     vowels = [];
+    vowels.push("í")
     vowels.push("i"); // short oral
     vowels.push("ɯ");
     vowels.push("u");
@@ -259,6 +260,9 @@ function ORTHTOPHONETIC(INPUT1) {
     phon = "";
     cons = GETC(1);
     vowels = GETV(1);
+    if (orth == "joopy") {
+        orth = "jopy"
+    } // hard code <joopy>
     // move consider current two, if not in cons or vowels, then assign first
     // and move one forward, repeat
     for (i = 0; i < orth.length; i++) {
@@ -543,8 +547,69 @@ function STRESSFILL(INPUT1) {
 // Takes in two strings of (1) panãra phonemic form and (2) panãra phonetic form
 // and returns a string of panãra phonetic form with stress and resulting V length
 function PHONEMICTOSTRESS(INPUT1, INPUT2) {
-    //ITERATE BACKWARDS through phonemic to find first vowel, then
-    // iterate through phonetic to find that matching V and
-    // add stress and V length, but then check for V.a and change to penultimate
-    return INPUT1;
+    var phonemic, phonetic, stressPhonetic, vowels, finalV;
+    phonemic = INPUT1;
+    phonetic = INPUT2;
+    stressPhonetic = "";
+    vowels = GETSYLLV(1);
+    finalV = "";
+    for (i = phonemic.length - 1; i >= 0; i--) { // iterate backwards, find final V in phonemic
+        finalV = phonemic.charAt(i);
+        if (vowels.indexOf(i) >= 0) { // if current sound is a vowel
+            break; // break and finalV = first V encountered
+        }
+    }
+    var syllables = phonetic.split(".");
+    if (syllables.length == 1) {
+        return phonetic;
+    }
+    if (finalV == "a" && syllables[syllables.length - 1] == "a") { // check for epenthetic a
+        var penultSyll = syllables[syllables.length - 2];
+        var lastInPenult = penultSyll.charAt(penultSyll.length - 1);
+        if (vowels.indexOf(lastInPenult) >= 0 && lastInPenult != "a") { // a is epenthetic
+            for (i = 0; i < syllables.length; i++) {
+                if (i == syllables.length - 2) {
+                    stressPhonetic += "ˈ";
+                }
+                if (i < syllables.length - 1) {
+                    stressPhonetic += syllables[i] + ".";
+                } else {
+                    stressPhonetic += syllables[i];
+                }
+            }
+        } else {
+            if (i == syllables.length - 1) {
+                stressPhonetic += "ˈ";
+            }
+            if (i < syllables.length - 1) {
+                stressPhonetic += syllables[i] + ".";
+            } else {
+                stressPhonetic += syllables[i];
+            }
+        }
+    }
+    if (syllables[syllables.length - 1].indexOf(finalV) >= 0) { // final phonemic V in ultimate syll
+        for (i = 0; i < syllables.length; i++) {
+            if (i == syllables.length - 1) {
+                stressPhonetic += "ˈ";
+            }
+            if (i < syllables.length - 1) {
+                stressPhonetic += syllables[i] + ".";
+            } else {
+                stressPhonetic += syllables[i];
+            }
+        }
+    } else { // otherwise stress is penultimate
+        for (i = 0; i < syllables.length; i++) {
+            if (i == syllables.length - 2) {
+                stressPhonetic += "ˈ";
+            }
+            if (i < syllables.length - 1) {
+                stressPhonetic += syllables[i] + ".";
+            } else {
+                stressPhonetic += syllables[i];
+            }
+        }
+    }
+    return stressPhonetic;
 }
