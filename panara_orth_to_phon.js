@@ -300,7 +300,8 @@ function PHONFILL(INPUT1){
     filled = INPUT1;
     filled = PHONETICFILL(filled);
     filled = NFILL(filled);
-    filled = TWOPHONFILL(filled);
+    filled = PHONEMICFILL(filled);
+    filled = STRESSFILL(filled);
     return filled;
 }
 
@@ -399,21 +400,13 @@ function PHONETICN(INPUT1) {
 }
 
 // Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
-// and returns the string with the /phonemic/ portion filled based off of the orthography
-// and the [phonetic] stress and vowel lengthening added
-// This function is not split into two functions like the previous steps because both
-// the phonetic and phonemic forms are changed, so keeping it in one is simpler.
-function TWOPHONFILL(INPUT1) {
-    var unfilled, isPhon, phonetic, phonemic, postOrals, ntgems, vowels, nasalV;
+// and returns the string with the /phonemic/ portion filled based off of the phonetic portion
+function PHONEMICFILL(INPUT1) {
+    var unfilled, isPhon, filler;
     unfilled = INPUT1;
     isPhon = 0;
-    phonetic = "";
-    phonemic = "";
-    postOrals = GETPHONCHANGED(1);
-    ntgems = GETINITIALEPEN(1);
-    vowels = GETSYLLV(1);
-    nasalV = GETNASALV(INPUT1);
-    for (i = 0; i < unfilled.length; i++) { // filling phonetic from input
+    filler = "";
+    for (i = 0; i < unfilled.length; i++) {
         if (unfilled.charAt(i) == "[") {
             isPhon = 1;
         }
@@ -421,34 +414,45 @@ function TWOPHONFILL(INPUT1) {
             break;
         }
         else if (isPhon == 1) {
-            phonetic += unfilled.charAt(i);
+            filler += unfilled.charAt(i);
         }
     }
-    // processing for phonetic to phonemic form and phonetic stress/V length
+    filler = PHONETICTOPHONEMIC(filler);
+    Utilities.sleep(1000);
+    return FILLAT(unfilled, filler, "/", "/");
+}
+
+// Takes in a string of panãra phonetic form and returns the phonemic form
+function PHONETICTOPHONEMIC(INPUT1) {
+    var phonetic, phonemic, postOrals, ntgems, vowels, nasalV;
+    phonetic = INPUT1.split(".").join(""); // without syllable breaks "."
+    phonemic = "";
+    postOrals = GETPHONCHANGED(1);
+    ntgems = GETINITIALEPEN(1);
+    vowels = GETSYLLV(1);
+    nasalV = GETNASALV(1);
     // consider current two, and add to phonemic form, then move forward one
-    var phoneticNoSyll = phonetic.replace('.','');
-    var pnsLength = phoneticNoSyll.length;
-    for (i = 0; i < pnsLength; i++) {
-        var first = phoneticNoSyll.charAt(i);
+    for (i = 0; i < phonetic.length; i++) {
+        var first = phonetic.charAt(i);
         // i epenthesis
         if (first == "i") {
-            if (i == 0 && i < pnsLength - 2) { // checking for #_nt and #_geminates
-                var nextTwo = phoneticNoSyll.charAt(i + 1) + phoneticNoSyll.charAt(i + 2);
-                if (nextTwo in ntgems) { // if i is epenthetic
+            if (i == 0 && phonetic.length > 2) { // checking for #_nt and #_geminates
+                var nextTwo = phonetic.charAt(i + 1) + phonetic.charAt(i + 2);
+                if (ntgems.indexOf(nextTwo) >= 0) { // if i is epenthetic
                     continue;
                 } else {
                     phonemic += first;
                 }
-            }  else if (i > 0 && i < pnsLength - 1) { // ɾ_C
-                var prev = phoneticNoSyll.charAt(i - 1);
-                var next = phoneticNoSyll.charAt(i + 1);
-                if (prev == "ɾ" && !(next in vowels)) {
+            }  else if (i > 0 && i < phonetic.length - 1) { // ɾ_C
+                var prev = phonetic.charAt(i - 1);
+                var next = phonetic.charAt(i + 1);
+                if (prev == "ɾ" && !(vowels.indexOf(next) >= 0)) {
                     continue;
                 } else {
                     phonemic += first;
                 }
-            } else if (i > 0 && i == pnsLength - 1) { // word final
-                var prev = phoneticNoSyll.charAt(i - 1);
+            } else if (i > 0 && i == phonetic.length - 1) { // word final
+                var prev = phonetic.charAt(i - 1);
                 if (prev == "ɾ") { // ɾ_#
                     continue;
                 } else if (prev == "p" || prev == "t" || prev == "s" || prev == "k") { //{p,t,s,k} -> C_#
@@ -461,26 +465,30 @@ function TWOPHONFILL(INPUT1) {
             }
         } else if (first == "ĩ") {
             if (i > 1) { // nasal Vɾ_ (epenthesis as a nasal i) CHECK IF LONG V COUNT?
-                var prev1 = phoneticNoSyll.charAt(i - 2);
-                var prev2 = phoneticNoSyll.charAt(i - 1);
-                if (prev2 == "ɾ" && prev1 in nasalV) {
+                var prev1 = phonetic.charAt(i - 2);
+                var prev2 = phonetic.charAt(i - 1);
+                if (prev2 == "ɾ" && nasalV.indexOf(prev1) >= 0) {
                     continue;
+                } else {
+                    phonemic += first;
                 }
             } else {
                 phonemic += first;
             }
         } else if (first == "ɯ") { // ɯ epenthesis
-            if (i > 1 && i == pnsLength - 1) { // word final only ɔp_# and op_#
-                var prev1 = phoneticNoSyll.charAt(i - 2);
-                var prev2 = phoneticNoSyll.charAt(i - 1);
+            if (i > 1 && i == phonetic.length - 1) { // word final only ɔp_# and op_#
+                var prev1 = phonetic.charAt(i - 2);
+                var prev2 = phonetic.charAt(i - 1);
                 if (prev2 == "p" && (prev1 == "ɔ" || prev1 == "o")) {
                     continue;
+                } else {
+                    phonemic += first;
                 }
             } else {
                 phonemic += first;
             }
-        } else if (i < pnsLength - 1) { // post oralized nasals
-            var double = first + phoneticNoSyll.charAt(i + 1);
+        } else if (i < phonetic.length - 1) { // post oralized nasals
+            var double = first + phonetic.charAt(i + 1);
             if (double in postOrals) {
                 phonemic += postOrals[double];
                 i += 1;
@@ -492,10 +500,51 @@ function TWOPHONFILL(INPUT1) {
             phonemic += first;
         }
     }
+    return phonemic;
+}
+
+// Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
+// and returns the string with stress and resulting V length added to the [phonetic] portion
+function STRESSFILL(INPUT1) {
+    var unfilled, isPhon, phonemic, phonetic, filler;
+    unfilled = INPUT1;
+    isPhon = 0;
+    phonemic = "";
+    phonetic = "";
+    filler = "";
+    for (i = 0; i < unfilled.length; i++) {
+        if (unfilled.charAt(i) == "/") {
+            isPhon = 1;
+        }
+        else if (unfilled.charAt(i) == "/") {
+            break;
+        }
+        else if (isPhon == 1) {
+            phonemic += unfilled.charAt(i);
+        }
+    }
+    isPhon = 0;
+    for (i = 0; i < unfilled.length; i++) {
+        if (unfilled.charAt(i) == "[") {
+            isPhon = 1;
+        }
+        else if (unfilled.charAt(i) == "]") {
+            break;
+        }
+        else if (isPhon == 1) {
+            phonetic += unfilled.charAt(i);
+        }
+    }
+    filler = PHONEMICTOSTRESS(phonemic, phonetic);
+    Utilities.sleep(1000);
+    return FILLAT(unfilled, filler, "[", "]");
+}
+
+// Takes in two strings of (1) panãra phonemic form and (2) panãra phonetic form
+// and returns a string of panãra phonetic form with stress and resulting V length
+function PHONEMICTOSTRESS(INPUT1, INPUT2) {
     //ITERATE BACKWARDS through phonemic to find first vowel, then
     // iterate through phonetic to find that matching V and
     // add stress and V length, but then check for V.a and change to penultimate
-    Utilities.sleep(1000);
-    unfilled = FILLAT(unfilled, phonetic, "[", "]");
-    return FILLAT(unfilled, phonemic, "/", "/");
+    return INPUT1;
 }
