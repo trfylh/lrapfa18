@@ -455,12 +455,17 @@ function PHONETICTOPHONEMIC(INPUT1) {
                 } else {
                     phonemic += first;
                 }
-            } else if (i > 0 && i == phonetic.length - 1) { // word final
-                var prev = phonetic.charAt(i - 1);
-                if (prev == "ɾ") { // ɾ_#
-                    continue;
-                } else if (prev == "p" || prev == "t" || prev == "s" || prev == "k") { //{p,t,s,k} -> C_#
-                    continue;
+            } else if (i > 1 && i == phonetic.length - 1) { // word final
+                var prev1 = phonetic.charAt(i - 2);
+                var prev2 = phonetic.charAt(i - 1);
+                if (prev1 == ":" || vowels.indexOf(prev1) >= 0) { // must be VCi, not CCi
+                    if (prev2 == "ɾ") { // ɾ_#
+                        continue;
+                    } else if (prev2 == "p" || prev2 == "t" || prev2 == "s" || prev2 == "k") { //{p,t,s,k} -> C_#
+                        continue;
+                    } else {
+                        phonemic += first;
+                    }
                 } else {
                     phonemic += first;
                 }
@@ -471,7 +476,7 @@ function PHONETICTOPHONEMIC(INPUT1) {
             if (i > 1) { // nasal Vɾ_ (epenthesis as a nasal i) CHECK IF LONG V COUNT?
                 var prev1 = phonetic.charAt(i - 2);
                 var prev2 = phonetic.charAt(i - 1);
-                if (prev2 == "ɾ" && nasalV.indexOf(prev1) >= 0) {
+                if (prev2 == "ɾ" && (prev1 == ":" || nasalV.indexOf(prev1) >= 0)) {
                     continue;
                 } else {
                     phonemic += first;
@@ -483,8 +488,19 @@ function PHONETICTOPHONEMIC(INPUT1) {
             if (i > 1 && i == phonetic.length - 1) { // word final only ɔp_# and op_#
                 var prev1 = phonetic.charAt(i - 2);
                 var prev2 = phonetic.charAt(i - 1);
-                if (prev2 == "p" && (prev1 == "ɔ" || prev1 == "o")) {
-                    continue;
+                if (prev2 == "p" ) {
+                    if (prev1 == ":") { // long ɔ and o
+                        prev0 = phonetic.charAt(i - 3);
+                        if (prev0 == "ɔ" || prev0 == "o") {
+                            continue;
+                        } else {
+                            phonemic += first;
+                        }
+                    } else if (prev1 == "ɔ" || prev1 == "o") { // short ɔ and o
+                        continue;
+                    } else {
+                        phonemic += first;
+                    }
                 } else {
                     phonemic += first;
                 }
