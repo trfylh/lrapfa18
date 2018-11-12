@@ -473,7 +473,7 @@ function PHONETICTOPHONEMIC(INPUT1) {
                 phonemic += first;
             }
         } else if (first == "ĩ") {
-            if (i > 1) { // nasal Vɾ_ (epenthesis as a nasal i) CHECK IF LONG V COUNT?
+            if (i > 1) { // nasal Vɾ_ (epenthesis as a nasal i)
                 var prev1 = phonetic.charAt(i - 2);
                 var prev2 = phonetic.charAt(i - 1);
                 if (prev2 == "ɾ" && (prev1 == ":" || nasalV.indexOf(prev1) >= 0)) {
@@ -526,24 +526,10 @@ function PHONETICTOPHONEMIC(INPUT1) {
 // Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
 // and returns the string with stress and resulting V length added to the [phonetic] portion
 function STRESSFILL(INPUT1) {
-    var unfilled, isPhon, phonemic, phonetic, filler;
+    var unfilled, isPhon, filler, phonemic, phonetic;
     unfilled = INPUT1;
     isPhon = 0;
-    phonemic = "";
-    phonetic = "";
     filler = "";
-    for (i = 0; i < unfilled.length; i++) {
-        if (unfilled.charAt(i) == "/") {
-            isPhon = 1;
-        }
-        else if (unfilled.charAt(i) == "/") {
-            break;
-        }
-        else if (isPhon == 1) {
-            phonemic += unfilled.charAt(i);
-        }
-    }
-    isPhon = 0;
     for (i = 0; i < unfilled.length; i++) {
         if (unfilled.charAt(i) == "[") {
             isPhon = 1;
@@ -552,9 +538,24 @@ function STRESSFILL(INPUT1) {
             break;
         }
         else if (isPhon == 1) {
-            phonetic += unfilled.charAt(i);
+            filler += unfilled.charAt(i);
         }
     }
+    phonetic = filler;
+    isPhon = 0;
+    filler = "";
+    for (i = 0; i < unfilled.length; i++) {
+        if (unfilled.charAt(i) == "/" && isPhon == 0) {
+            isPhon = 1;
+        }
+        else if (unfilled.charAt(i) == "/" && isPhon == 1) {
+            break;
+        }
+        else if (isPhon == 1) {
+            filler += unfilled.charAt(i);
+        }
+    }
+    phonemic = filler;
     filler = PHONEMICTOSTRESS(phonemic, phonetic);
     Utilities.sleep(1000);
     return FILLAT(unfilled, filler, "[", "]");
@@ -563,25 +564,35 @@ function STRESSFILL(INPUT1) {
 // Takes in two strings of (1) panãra phonemic form and (2) panãra phonetic form
 // and returns a string of panãra phonetic form with stress and resulting V length
 function PHONEMICTOSTRESS(INPUT1, INPUT2) {
-    var phonemic, phonetic, stressPhonetic, vowels, finalV;
+    var phonemic, phonetic, stressPhonetic, vowels, phonemicV, phoneticV;
     phonemic = INPUT1;
     phonetic = INPUT2;
     stressPhonetic = "";
     vowels = GETSYLLV(1);
-    finalV = "";
+    phonemicV = "";
+    phoneticV = ""
     for (i = phonemic.length - 1; i >= 0; i--) { // iterate backwards, find final V in phonemic
-        finalV = phonemic.charAt(i);
-        if (vowels.indexOf(i) >= 0) { // if current sound is a vowel
-            break; // break and finalV = first V encountered
+        phonemicV = phonemic.charAt(i);
+        if (vowels.indexOf(phonemicV) >= 0) { // if current sound is a vowel
+            break; // break and phonemicV = first V encountered
+        }
+    }
+    for (i = phonetic.length - 1; i >= 0; i--) { // iterate backwards, find final V in phonemic
+        phoneticV = phonetic.charAt(i);
+        if (vowels.indexOf(phoneticV) >= 0) { // if current sound is a vowel
+            break; // break and phoneticV = first V encountered
         }
     }
     var syllables = phonetic.split(".");
     if (syllables.length == 1) {
         return phonetic;
     }
-    if (finalV == "a" && syllables[syllables.length - 1] == "a") { // check for epenthetic a
+    if (phonemicV == "a" && syllables[syllables.length - 1] == "a") { // check for epenthetic a
         var penultSyll = syllables[syllables.length - 2];
         var lastInPenult = penultSyll.charAt(penultSyll.length - 1);
+        if (lastInPenult == ":") {
+            lastInPenult = penultSyll.charAt(penultSyll.length - 2);
+        }
         if (vowels.indexOf(lastInPenult) >= 0 && lastInPenult != "a") { // a is epenthetic
             for (i = 0; i < syllables.length; i++) {
                 if (i == syllables.length - 2) {
@@ -604,7 +615,7 @@ function PHONEMICTOSTRESS(INPUT1, INPUT2) {
             }
         }
     }
-    if (syllables[syllables.length - 1].indexOf(finalV) >= 0) { // final phonemic V in ultimate syll
+    else if (phonemicV == phoneticV) { // final phonemic V in ultimate syll
         for (i = 0; i < syllables.length; i++) {
             if (i == syllables.length - 1) {
                 stressPhonetic += "ˈ";
