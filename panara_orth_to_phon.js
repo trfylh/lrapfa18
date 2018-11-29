@@ -296,16 +296,71 @@ function ORTHTOPHONETIC(INPUT1) {
     return phon;
 }
 
-// NOT FINISHED
 // Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
 // and returns the string with the [phonetic] portion (and /phonemic/ portion todo) filled based off of the orthography
-function PHONFILL(INPUT1){
+function ONEPHONFILL(INPUT1){
     var filled;
     filled = INPUT1;
     filled = PHONETICFILL(filled);
     filled = NFILL(filled);
     filled = PHONEMICFILL(filled);
     filled = STRESSFILL(filled);
+    return filled;
+}
+
+// Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
+// and returns the string with the [phonetic] portion (and /phonemic/ portion todo) filled based off of the orthography
+function PHONFILL(INPUT1){
+    var filled, unfilled, filler, isOrtho, words;
+    // Checking for multiple words, if so treating them as separate words
+    // and merging phonetic and phonemic with commas at the end
+    unfilled = INPUT1;
+    if (unfilled == "") { // for blank cells
+        return "";
+    }
+    filler = ""; // will contain orthography
+    isOrtho = 0;
+    for (i = 0; i < unfilled.length; i++) {
+        if (unfilled.charAt(i) == "<") {
+            isOrtho = 1;
+        }
+        else if (unfilled.charAt(i) == ">") {
+            break;
+        }
+        else if (isOrtho == 1) {
+            filler += unfilled.charAt(i);
+        }
+    }
+    words = filler.replace(/\s/g, ''); // will contain all words, removing spaces
+    words = words.split(","); // splitting on comma for list of multiple words
+    if (words.length == 1) {
+        return ONEPHONFILL(unfilled);
+    }
+
+    var orthSkeleton;
+    orthSkeleton = unfilled.split("<");
+    orthSkeleton[1] = orthSkeleton[1].split(">")[1];
+    var curr;
+    var finalWords = []; // list of /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note| for each word
+    for (i = 0; i < words.length; i++) {
+        curr = orthSkeleton[0] + "<" + words[i] + ">" + orthSkeleton[1];
+        curr = ONEPHONFILL(curr);
+        curr = curr + "aaa";
+        finalWords.push(curr);
+    }
+    return finalWords.length;
+    // combining each string into a single comma delineated entry for orthography, phonetic, and phonemic word(s)
+    filled = "";
+    var finalOrtho, finalPhonetic, finalPhonemic;
+    finalOrtho = "";
+    finalPhonetic = "";
+    finalPhonemic - "";
+    for (i = 0; i < finalWords.length; i++) {
+        filled += finalWords[i];
+    }
+    filled = FILLAT(unfilled, finalOrtho, "<", ">");
+    filled = FILLAT(filled, finalPhonetic, "[", "]");
+    filled = FILLAT(filled, finalPhonemic, "/", "/");
     return filled;
 }
 
@@ -595,7 +650,7 @@ function PHONEMICTOSTRESS(INPUT1, INPUT2) {
         }
         if (vowels.indexOf(lastInPenult) >= 0 && lastInPenult != "a") { // a is epenthetic
             for (i = 0; i < syllables.length; i++) {
-                if (i == syllables.length - 2) {
+                if (i == syllables.length - 2) { // stress is penultimate
                     stressPhonetic += "ˈ";
                 }
                 if (i < syllables.length - 1) {
@@ -605,7 +660,7 @@ function PHONEMICTOSTRESS(INPUT1, INPUT2) {
                 }
             }
         } else {
-            if (i == syllables.length - 1) {
+            if (i == syllables.length - 1) { // stress is ultimate
                 stressPhonetic += "ˈ";
             }
             if (i < syllables.length - 1) {
