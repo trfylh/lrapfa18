@@ -305,7 +305,7 @@ function ONEPHONFILL(INPUT1){
     filled = NFILL(filled);
     filled = PHONEMICFILL(filled);
     filled = STRESSFILL(filled);
-    return filled;
+    return String(filled);
 }
 
 // Takes in a string of panãra /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note|
@@ -336,27 +336,41 @@ function PHONFILL(INPUT1){
     if (words.length == 1) {
         return ONEPHONFILL(unfilled);
     }
-
     var orthSkeleton;
     orthSkeleton = unfilled.split("<");
     orthSkeleton[1] = orthSkeleton[1].split(">")[1];
     var curr;
     var finalWords = []; // list of /phonemic/[phonetic]<orthography>(author,year,page) {POR,ENG}|note| for each word
-    for (i = 0; i < words.length; i++) {
-        curr = orthSkeleton[0] + "<" + words[i] + ">" + orthSkeleton[1];
+    for (j = 0; j < words.length; j++) {
+        curr = orthSkeleton[0] + "<" + words[j] + ">" + orthSkeleton[1];
         curr = ONEPHONFILL(curr);
-        curr = curr + "aaa";
         finalWords.push(curr);
     }
-    return finalWords.length;
     // combining each string into a single comma delineated entry for orthography, phonetic, and phonemic word(s)
     filled = "";
-    var finalOrtho, finalPhonetic, finalPhonemic;
+    var finalOrtho, finalPhonetic, finalPhonemic, currWord, currMatch;
     finalOrtho = "";
     finalPhonetic = "";
-    finalPhonemic - "";
+    finalPhonemic = "";
     for (i = 0; i < finalWords.length; i++) {
-        filled += finalWords[i];
+        currWord = finalWords[i];
+        if (i > 0) {
+            finalOrtho += ", ";
+            finalPhonetic += ", ";
+            finalPhonemic += ", ";
+        }
+        currMatch = currWord.match(/\<(.*?)\>/);
+        if (currMatch) {
+            finalOrtho += currMatch[1];
+        }
+        currMatch = currWord.match(/\[(.*?)\]/);
+        if (currMatch) {
+            finalPhonetic += currMatch[1];
+        }
+        currMatch = currWord.match(/\/(.*?)\//);
+        if (currMatch) {
+            finalPhonemic += currMatch[1];
+        }
     }
     filled = FILLAT(unfilled, finalOrtho, "<", ">");
     filled = FILLAT(filled, finalPhonetic, "[", "]");
