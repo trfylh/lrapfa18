@@ -662,15 +662,24 @@ function PHONEMICTOSTRESS(INPUT1, INPUT2) {
         if (lastInPenult == ":") {
             lastInPenult = penultSyll.charAt(penultSyll.length - 2);
         }
-        if (vowels.indexOf(lastInPenult) >= 0 && lastInPenult != "a") { // a is epenthetic
+        if (vowels.indexOf(lastInPenult) >= 0 && lastInPenult != "a") { // a is epenthetic, stress is penultimate
             for (i = 0; i < syllables.length; i++) {
-                if (i == syllables.length - 2) { // stress is penultimate
+                if (i == syllables.length - 2) { // at penultimate syllable
                     stressPhonetic += "ˈ";
-                }
-                if (i < syllables.length - 1) {
-                    stressPhonetic += syllables[i] + ".";
+                    var currSyll = syllables[i];
+                    for (n = 0; n < currSyll.length; n++) {
+                        stressPhonetic += currSyll.charAt(n);
+                        if (vowels.indexOf(currSyll.charAt(n)) >= 0) { // if V, make it long
+                            stressPhonetic += ":";
+                        }
+                    }
+                    stressPhonetic += ".";
                 } else {
-                    stressPhonetic += syllables[i];
+                    if (i < syllables.length - 1) {
+                        stressPhonetic += syllables[i] + ".";
+                    } else {
+                        stressPhonetic += syllables[i];
+                    }
                 }
             }
         } else {
@@ -684,7 +693,7 @@ function PHONEMICTOSTRESS(INPUT1, INPUT2) {
             }
         }
     }
-    else if (phonemicV == phoneticV) { // final phonemic V in ultimate syll
+    else if (phonemicV == phoneticV) { // final phonemic V in ultimate syll, ultimate stress
         for (i = 0; i < syllables.length; i++) {
             if (i == syllables.length - 1) {
                 stressPhonetic += "ˈ";
@@ -697,13 +706,22 @@ function PHONEMICTOSTRESS(INPUT1, INPUT2) {
         }
     } else { // otherwise stress is penultimate
         for (i = 0; i < syllables.length; i++) {
-            if (i == syllables.length - 2) {
+            if (i == syllables.length - 2) { // at penultimate syllable
                 stressPhonetic += "ˈ";
-            }
-            if (i < syllables.length - 1) {
-                stressPhonetic += syllables[i] + ".";
+                var currSyll = syllables[i];
+                for (n = 0; n < currSyll.length; n++) {
+                    stressPhonetic += currSyll.charAt(n);
+                    if (vowels.indexOf(currSyll.charAt(n)) >= 0) { // if V, make it long
+                        stressPhonetic += ":";
+                    }
+                }
+                stressPhonetic += ".";
             } else {
-                stressPhonetic += syllables[i];
+                if (i < syllables.length - 1) {
+                    stressPhonetic += syllables[i] + ".";
+                } else {
+                    stressPhonetic += syllables[i];
+                }
             }
         }
     }
