@@ -1,4 +1,4 @@
-// Writen by Teela Huff (thuff@berkeley.edu) for LRAP on 19 September 2018
+// Writen by Teela Huff (thuff@berkeley.edu) for LRAP in Fall 2018
 // Must be in JavaScript in order to be implemented as a script in Google Sheets
 
 // Returns a dict of Panãra consonant phonetic forms that change for phonemic forms
@@ -190,7 +190,7 @@ function SYLLABIFYPHONETIC(INPUT1) {
     cPOA = GETCPOA(1);
     syllV = GETSYLLV(1);
     afterV = 0;
-    // move consider current two, if not in cons or vowels, then assign first
+    // Consider current two, if not in cons or vowels, then assign first
     // and move one forward, repeat
     for (i = 0; i < phon.length; i++) {
         var first = phon.charAt(i);
@@ -252,18 +252,18 @@ function FILLAT(INPUT1, INPUT2, INPUT3, INPUT4) {
     return unfilled.slice(0, prevBracket + 1) + filler + unfilled.slice(postBracket, unfilled.length);
 }
 
-// Takes in a string of panãra orthography and returns the wide phonetic form.
-// ex. takes in "nãnsy" and returns "nãn.sɯ"
+// Takes in a string of panãra orthography and returns the wide phonetic form without syllables.
+// ex. takes in "nãnsy" and returns "nãnsɯ"
 function ORTHTOPHONETIC(INPUT1) {
     var orth, phon, cons, vowels;
     orth = INPUT1;
     phon = "";
     cons = GETC(1);
     vowels = GETV(1);
-    if (orth == "joopy") {
+    if (orth == "joopy") { // hard code <joopy>
         orth = "jopy"
-    } // hard code <joopy>
-    // move consider current two, if not in cons or vowels, then assign first
+    }
+    // Consider current two, if not in cons or vowels, then assign first
     // and move one forward, repeat
     for (i = 0; i < orth.length; i++) {
         if (i < orth.length - 1) { // if two or more letters left
